@@ -1,0 +1,72 @@
+; *************************************************************
+; STM32H743XI Scatter File
+; SDRAM 64MB at 0xD0000000
+; QSPI NOR 32MB at 0x90000000
+; *************************************************************
+
+LR_IROM1 0x08020000 0x000E0000  {
+
+  ; Internal Flash: code + const
+  ER_IROM1 0x08020000 0x000E0000  {
+    *.o (RESET, +First)
+    *(InRoot$$Sections)
+    .ANY (+RO)
+    .ANY (+XO)
+  }
+
+  ;RW_ITCM 0x00000000 0x00010000  {
+  ;  *(.itcm)
+  ;}  
+
+  ; DTCM RAM: 128KB
+  ;RW_DTCM 0x20000000 0x00020000  {
+  ;  *(.dtcm)
+  ;  *(.dtcm_ram)
+  ;  *(.dtcm_bss)
+  ;}
+
+  ; AXI SRAM: 512KB
+  RW_AXI_SRAM 0x24000000 0x00080000  {
+  ;  *(.axi_ram)
+  ;  *(.lvgl_draw_buf_axi)
+  ;  *(.dma_buffer_axi)
+    .ANY (+RW +ZI)
+  }
+
+  ;RW_D2_SRAM 0x30000000 0x00048000 {
+  ;  *(.d2_sram)
+  ;}
+
+  ;RW_D3_SRAM 0x38000000 0x00010000 {
+  ;  *(.d3_sram)
+  ;}
+
+  ; SDRAM framebuffer0
+  ; 800 * 480 * RGB565 = 800 * 480 * 2 = 0xBB800
+  ;RW_SDRAM_FB0 0xD0000000 UNINIT 0x000BB800  {
+   ; *(.fb0)
+  ;}
+
+  ; SDRAM framebuffer1
+  ;RW_SDRAM_FB1 0xD00BB800 UNINIT 0x000BB800  {
+  ;  *(.fb1)
+  ;}
+
+  ; Remaining SDRAM area
+  ; start = 0xD0000000 + 0x00177000 = 0xD0177000
+  ; size  = 0x04000000 - 0x00177000 = 0x03E89000
+  ;RW_SDRAM_HEAP 0xD0177000 UNINIT 0x03E89000  {
+  ;  *(.sdram)
+  ;  *(.sdram_bss)
+  ;  *(.lvgl_mem_sdram)
+  ;  *(.large_buffer_sdram)
+  ;}
+
+  ; QSPI NOR memory mapped area, 32MB
+  ; 只放只读资源，不放普通变量
+  ;ER_QSPI_NOR 0x90000000 0x02000000  {
+   ; *(.qspi_ro)
+   ; *(.qspi_resource)
+  ;}
+}
+

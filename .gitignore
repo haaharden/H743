@@ -1,0 +1,30 @@
+#编译产物
+*.o
+*.d
+*.crf
+*.htm
+*.map
+*.axf
+*.elf
+*.bin
+*.hex
+
+# Keil / MDK generated folders
+**/MDK-ARM/Objects/
+**/MDK-ARM/Listings/
+
+# Keil user files
+*.uvguix.*
+*.uvoptx.bak
+*.uvprojx.bak
+
+# Project private/reference folders
+00_Project_Management/
+00_Reference/
+01_Function_Map/
+02_Hardware/
+04_Software/00_Ref/
+04_Software/02_LVGL_resources/
+05_Mechanical/
+06_FCT/
+07_Tools/
