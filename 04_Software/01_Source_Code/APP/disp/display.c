@@ -1,18 +1,66 @@
+#include <string.h>
 #include "cmsis_os2.h"
 #include "display.h"
 #include "gui_test_app.h"
 #include "custom.h"
 #include "events_init.h"
 #include "event_conf.h"
-#include "usb_file_browser.h"
-#include "string.h"
 
-static lv_obj_t *s_last_screen = NULL;
-static uint8_t s_in_update_screen = 0;
+static Display_Task_Ctx_t *ctx;
+static lv_obj_t           *s_last_screen = NULL;
+static uint8_t            s_in_update_screen = 0;
 
-extern osSemaphoreId_t LvglReadySemHandle;
-extern osEventFlagsId_t uiMSGEventHandle;
-extern osEventFlagsId_t otaEventHandle;
+static uint8_t ui_is_app_bin(const UsbViewItem_t *item);
+static void    ui_enter_update_screen(void);
+static void    ui_back_to_last_screen(void);   
+static void    ui_show_usb_root_items(void);
+static void    ui_usb_item_event_cb(lv_event_t *e);
+static void    ui_ota_msgbox_event_cb(lv_event_t *e);
+static void    ui_create_usb_item(uint8_t index, 
+                                  const UsbViewItem_t *item);
+static void    ui_enter_update_screen(void);
+
+void display_Init(Display_Task_Ctx_t *self,
+               osSemaphoreId_t    lv_ready_Sem,
+               osEventFlagsId_t   ui_msg_event,
+               osEventFlagsId_t   ota_event,
+               UsbFileBrowser_t   *usb_file_browser)
+{
+    self->lv_ready_Sem     = lv_ready_Sem;
+    self->ui_msg_event     = ui_msg_event;
+    self->ota_event        = ota_event;
+    self->usb_file_browser = usb_file_browser;
+}
+
+void Display_Task(void *argument)
+{
+  Display_Task_Ctx_t *ctx = (Display_Task_Ctx_t *)argument;
+  osSemaphoreAcquire(ctx->lv_ready_Sem, osWaitForever);
+  osSemaphoreDelete(ctx->lv_ready_Sem);
+  // 只在 LVGL 初始化完成后创建界面对象，避免与 initial() 并发访问 LVGL 内部内存池。
+  setup_ui(&guider_ui);
+  events_init(&guider_ui);
+  custom_init(&guider_ui);
+  for(;;)
+  {
+    uint32_t flags = osEventFlagsWait(ctx->ui_msg_event, 
+                            UI_MSG_EVT_DISC | UI_MSG_EVT_UPDATE, 
+                            osFlagsWaitAny, 
+                            0);
+    if ((flags & osFlagsError) == 0U) {
+      if ((flags & UI_MSG_EVT_DISC) != 0U){
+          ui_back_to_last_screen();
+      }
+      else if ((flags & UI_MSG_EVT_UPDATE) != 0U)
+      {
+          ui_enter_update_screen();
+          ui_show_usb_root_items();
+      }
+    }
+    lv_timer_handler();
+    osDelay(10);
+  }
+}
 
 // 进入更新界面，保存当前界面以便后续返回。
 static void ui_enter_update_screen(void)
@@ -95,7 +143,7 @@ static void ui_ota_msgbox_event_cb(lv_event_t *e)
 
     if (strcmp(btn_txt, "Yes") == 0)
     {
-        osEventFlagsSet(otaEventHandle, OTA_MSG_EVT_START);
+        osEventFlagsSet(ctx->ota_event, OTA_MSG_EVT_START);
     }
 
     lv_msgbox_close(mbox);
@@ -113,7 +161,7 @@ static void ui_usb_item_event_cb(lv_event_t *e)
 
     static const char *btns[] = {"Yes", "No", ""};
 
-    lv_obj_t *mbox = lv_msgbox_create(NULL,
+    lv_obj_t *mbox = lv_msgbox_create(guider_ui.screen_2,
                                       "OTA Update",
                                       "Found app.bin. Upgrade now?",
                                       btns,
@@ -122,7 +170,7 @@ static void ui_usb_item_event_cb(lv_event_t *e)
     lv_obj_add_event_cb(mbox,
                         ui_ota_msgbox_event_cb,
                         LV_EVENT_VALUE_CHANGED,
-                        NULL);
+                        (void *)ctx);
 
     lv_obj_center(mbox);
 }
@@ -210,45 +258,19 @@ static void ui_create_usb_item(uint8_t index, const UsbViewItem_t *item)
 static void ui_show_usb_root_items(void)
 {
     uint8_t i;
+    const UsbViewModel_t* usb_view_model;
+
+    usb_view_model = UsbFileBrowser_GetViewModel(ctx->usb_file_browser);
 
     lv_label_set_text(guider_ui.screen_2_label_path,
-                      g_usb_view_model.path);
+                      usb_view_model->path);
 
     lv_obj_clean(guider_ui.screen_2_cont_files);
 
-    for (i = 0; i < g_usb_view_model.count; i++)
+    for (i = 0; i < usb_view_model->count; i++)
     {
-        ui_create_usb_item(i, &g_usb_view_model.items[i]);
+        ui_create_usb_item(i, &usb_view_model->items[i]);
     }
 }
 
 
-void Display_Task(void *argument)
-{
-  osSemaphoreAcquire(LvglReadySemHandle, osWaitForever);
-  osSemaphoreDelete(LvglReadySemHandle);
-  // 只在 LVGL 初始化完成后创建界面对象，避免与 initial() 并发访问 LVGL 内部内存池。
-  setup_ui(&guider_ui);
-  events_init(&guider_ui);
-  custom_init(&guider_ui);
-  for(;;)
-  {
-    uint32_t flags = osEventFlagsWait(uiMSGEventHandle, 
-                            UI_MSG_EVT_DISC | UI_MSG_EVT_UPDATE, 
-                            osFlagsWaitAny, 
-                            0);
-    if ((flags & osFlagsError) == 0U) {
-      if ((flags & UI_MSG_EVT_DISC) != 0U){
-          ui_back_to_last_screen();
-      }
-      else if ((flags & UI_MSG_EVT_UPDATE) != 0U)
-      {
-          ui_enter_update_screen();
-          ui_show_usb_root_items();
-      }
-    }
-    // 这里放显示相关的周期性任务，比如 LVGL 的 lv_timer_handler 调度。
-    lv_timer_handler();
-    osDelay(10);  // LVGL 官方推荐 5~10ms 的调度周期。
-  }
-}

@@ -8,33 +8,41 @@
 #include "cmsis_os2.h"
 #include "fatfs.h"
 
-extern osEventFlagsId_t usbEventHandle;
-extern osEventFlagsId_t mountEventHandle;
-
-void USB_mount_Task(void *argument)
+void UsbStorage_Init(UsbStorage_t *self,
+                     osEventFlagsId_t usb_event,
+                     osEventFlagsId_t mount_event)
 {
-  static uint8_t mounted = 0;
+  self->usb_event = usb_event;
+  self->mount_event = mount_event;
+  self->mounted = 0;
+}
+
+void UsbStorage_Task(void *argument)
+{
+  UsbStorage_t *self = (UsbStorage_t *)argument;
   for (;;) {
         uint32_t flags = osEventFlagsWait(
-        usbEventHandle,
+        self->usb_event,
         USB_EVT_READY | USB_EVT_DISCONNECT,
         osFlagsWaitAny,
         osWaitForever);
         
     if (0U != (flags & USB_EVT_DISCONNECT)) {
-      if (mounted) {
+      if (self->mounted) {
         f_mount(NULL, USERHPath, 0);
-        mounted = 0;
-        osEventFlagsSet(mountEventHandle,MOUNT_EVT_DISCONNECT);
+        self->mounted = 0;
+        osEventFlagsSet(self->mount_event, 
+                        MOUNT_EVT_DISCONNECT);
         
       }
     }
 
     if (0U != (flags & USB_EVT_READY)) {
-      if (!mounted) {
+      if (!self->mounted) {
         if (f_mount(&USERHFatFS, USERHPath, 1) == FR_OK) {
-          mounted = 1;
-          osEventFlagsSet(mountEventHandle, MOUNT_EVT_READY);
+          self->mounted = 1;
+          osEventFlagsSet(self->mount_event, 
+                          MOUNT_EVT_READY);
           
         }
       }

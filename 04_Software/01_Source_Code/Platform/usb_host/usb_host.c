@@ -92,9 +92,7 @@ void MX_USB_HOST_Init(void)
 /*
  * user callback definition
  */
-#include "event_conf.h"
-#include "cmsis_os2.h"
-extern osEventFlagsId_t usbEventHandle;
+#include "app_usbhost_port.h"
 static void USBH_UserProcess  (USBH_HandleTypeDef *phost, uint8_t id)
 {
   /* USER CODE BEGIN CALL_BACK_1 */
@@ -105,12 +103,12 @@ static void USBH_UserProcess  (USBH_HandleTypeDef *phost, uint8_t id)
 
   case HOST_USER_DISCONNECTION:
   Appli_state = APPLICATION_DISCONNECT;
-  osEventFlagsSet(usbEventHandle, USB_EVT_DISCONNECT);
+  app_usb_disconnected();
   break;
 
   case HOST_USER_CLASS_ACTIVE:
   Appli_state = APPLICATION_READY;
-  osEventFlagsSet(usbEventHandle, USB_EVT_READY);
+  app_usb_ready();
   break;
 
   case HOST_USER_CONNECTION:
