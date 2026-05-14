@@ -8,6 +8,7 @@
 "h743_bootloader\stm32h7xx_it.o"
 "h743_bootloader\stm32h7xx_hal_msp.o"
 "h743_bootloader\bootloader.o"
+"h743_bootloader\crc32.o"
 "h743_bootloader\stm32h7xx_hal_cortex.o"
 "h743_bootloader\stm32h7xx_hal_rcc.o"
 "h743_bootloader\stm32h7xx_hal_rcc_ex.o"

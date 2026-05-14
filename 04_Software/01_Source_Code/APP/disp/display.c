@@ -24,7 +24,7 @@ void display_Init(Display_Task_Ctx_t *self,
                osSemaphoreId_t    lv_ready_Sem,
                osEventFlagsId_t   ui_msg_event,
                osEventFlagsId_t   ota_event,
-               UsbFileBrowser_t   *usb_file_browser)
+               usb_file_browser_ctx *usb_file_browser)
 {
     self->lv_ready_Sem     = lv_ready_Sem;
     self->ui_msg_event     = ui_msg_event;
@@ -34,7 +34,7 @@ void display_Init(Display_Task_Ctx_t *self,
 
 void Display_Task(void *argument)
 {
-  Display_Task_Ctx_t *ctx = (Display_Task_Ctx_t *)argument;
+  ctx = (Display_Task_Ctx_t *)argument;
   osSemaphoreAcquire(ctx->lv_ready_Sem, osWaitForever);
   osSemaphoreDelete(ctx->lv_ready_Sem);
   // 只在 LVGL 初始化完成后创建界面对象，避免与 initial() 并发访问 LVGL 内部内存池。

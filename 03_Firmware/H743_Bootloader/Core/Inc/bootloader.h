@@ -9,11 +9,14 @@ extern "C" {
 #include <stdint.h>
 
 /*
- * Flash ????
+ * Internal flash layout
  *
  * Bootloader: 0x08000000, 128KB
- * APP1:       0x08020000, 896KB
- * APP2:       0x08100000, 896KB
+ * APP1:       0x08020000, 896KB  (production image; OTA installs here)
+ * APP2:       0x08100000, 896KB  (reserved; not used by this OTA flow)
+ *
+ * OTA uses external W25Q OTA_Flag_t dual copies + two firmware package slots
+ * (see app ota_info.h / system_storge.h).
  */
 #define BOOTLOADER_ADDR          0x08000000UL
 #define BOOTLOADER_SIZE          0x00020000UL
@@ -28,15 +31,6 @@ extern "C" {
 #define BOOT_APP2_END_ADDR       (BOOT_APP2_ADDR + BOOT_APP2_SIZE)
 
 #define BOOT_FLASH_END_ADDR      0x08200000UL
-
-#define BOOT_EXT_FLASH_SIZE      0x02000000UL
-#define BOOT_OTA_NEW_FW_ADDR     0x01000000UL
-#define BOOT_OTA_NEW_FW_SIZE     0x00200000UL
-
-#define BOOT_INFO_MAGIC          0x424F4F54UL
-#define BOOT_INFO_ADDR           0x081E0000UL
-#define BOOT_INFO_BANK           FLASH_BANK_2
-#define BOOT_INFO_SECTOR         FLASH_SECTOR_7
 
 #define BOOT_FLASH_WORD_SIZE     32U
 #define BOOT_INSTALL_CHUNK_SIZE  4096U
@@ -70,26 +64,6 @@ typedef enum
 	BOOT_SLOT_APP1 = 1,
 	BOOT_SLOT_APP2 = 2
 } BootSlot_t;
-
-typedef enum
-{
-	BOOT_UPDATE_IDLE = 0,
-	BOOT_UPDATE_STAGED = 1,
-	BOOT_UPDATE_INSTALLING = 2,
-	BOOT_UPDATE_DONE = 3,
-	BOOT_UPDATE_FAIL = 4
-} BootUpdateState_t;
-
-typedef struct
-{
-	uint32_t magic;
-	uint32_t active_slot;
-	uint32_t target_slot;
-	uint32_t update_state;
-	uint32_t image_size;
-	uint32_t image_ext_addr;
-	uint32_t last_result;
-} BootInfo_t;
 
 void Bootloader_Run(void);
 

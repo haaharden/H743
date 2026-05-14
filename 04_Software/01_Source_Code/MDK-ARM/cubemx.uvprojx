@@ -82,7 +82,7 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>fromelf --bin --output .\Objects\app.bin .\Objects\cubemx.axf</UserProg1Name>
+            <UserProg1Name>fromelf --bin --output ..\..\..\03_Firmware\ota_bin\app1.bin .\Objects\cubemx.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_PWR_LDO_SUPPLY,USE_HAL_DRIVER,STM32H743xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/inc;../Platform/inc;../Tasks/Inc;../SYSTEM;../BSP/disp_ht05;../BSP/touch_gt1151q;../BSP/flash_w25q256;../BSP/sdram;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Drivers/CMSIS/RTOS2/Include;../OS/FreeRTOS/Source/include;../OS/FreeRTOS/Source/CMSIS_RTOS_V2;../OS/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../OS/FreeRTOS/Source/portable/Common;../Middlewares/FatFs/src;../Middlewares/STM32_USB_Host_Library/Class/MSC/Inc;../Middlewares/STM32_USB_Host_Library/Core/Inc;../Middlewares/LVGL/GUI;../Middlewares/LVGL/GUI/src;../Middlewares/LVGL/GUI/porting;../Middlewares/LVGL/GUI_APP/gui/test/custom;../Middlewares/LVGL/GUI_APP/gui/test/generated;../Middlewares/RTT;..\Tasks\disp;..\Tasks\usb;..\BSP\flash_board;..\Tasks;..\Tasks\ota</IncludePath>
+              <IncludePath>../Core/inc;../SYSTEM;../BSP/disp_ht05;../BSP/touch_gt1151q;../BSP/flash_w25q256;../BSP/sdram;../BSP/flash_board;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Drivers/CMSIS/RTOS2/Include;../OS/FreeRTOS/Source/include;../OS/FreeRTOS/Source/CMSIS_RTOS_V2;../OS/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../OS/FreeRTOS/Source/portable/Common;../Middlewares/FatFs/src;../Middlewares/STM32_USB_Host_Library/Class/MSC/Inc;../Middlewares/STM32_USB_Host_Library/Core/Inc;../Middlewares/LVGL/GUI;../Middlewares/LVGL/GUI/src;../Middlewares/LVGL/GUI/porting;../Middlewares/LVGL/GUI_APP/gui/test/custom;../Middlewares/LVGL/GUI_APP/gui/test/generated;../Middlewares/RTT;../APP/disp;../APP/init;../APP/usb;../APP/ota;../Platform/usb_host;../SVC/event;../SVC/log</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -574,17 +574,17 @@
             <File>
               <FileName>usb_host.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\src\usb_host.c</FilePath>
+              <FilePath>..\Platform\usb_host\usb_host.c</FilePath>
             </File>
             <File>
               <FileName>usbh_conf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\src\usbh_conf.c</FilePath>
+              <FilePath>..\Platform\usb_host\usbh_conf.c</FilePath>
             </File>
             <File>
               <FileName>userh_diskio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\src\userh_diskio.c</FilePath>
+              <FilePath>..\Platform\usb_host\userh_diskio.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2803,7 +2803,7 @@
             <File>
               <FileName>initial.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Tasks\Src\initial.c</FilePath>
+              <FilePath>..\APP\init\initial.c</FilePath>
             </File>
             <File>
               <FileName>disp_ht05.c</FileName>
@@ -2833,27 +2833,57 @@
             <File>
               <FileName>display.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Tasks\disp\display.c</FilePath>
+              <FilePath>..\APP\disp\display.c</FilePath>
             </File>
             <File>
-              <FileName>usb_storage.c</FileName>
+              <FileName>app_usb_storage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Tasks\usb\usb_storage.c</FilePath>
+              <FilePath>..\APP\usb\app_usb_storage.c</FilePath>
             </File>
             <File>
-              <FileName>ota_update.c</FileName>
+              <FileName>app_ota_update.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Tasks\ota\ota_update.c</FilePath>
+              <FilePath>..\APP\ota\app_ota_update.c</FilePath>
             </File>
             <File>
-              <FileName>usb_file_browser.c</FileName>
+              <FileName>ota_confirm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Tasks\usb\usb_file_browser.c</FilePath>
+              <FilePath>..\APP\ota\ota_confirm.c</FilePath>
+            </File>
+            <File>
+              <FileName>crc32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\ota\crc32.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_image.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\ota\ota_image.c</FilePath>
+            </File>
+            <File>
+              <FileName>ota_download.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\ota\ota_download.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_usb_file_broswer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\usb\app_usb_file_broswer.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_usbhost_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\usb\app_usbhost_port.c</FilePath>
             </File>
             <File>
               <FileName>event_conf.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Tasks\event_conf.h</FilePath>
+              <FilePath>..\SVC\event\event_conf.h</FilePath>
+            </File>
+            <File>
+              <FileName>ota_flag.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\ota\ota_flag.c</FilePath>
             </File>
           </Files>
         </Group>

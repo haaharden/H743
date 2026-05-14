@@ -22,6 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 #include "stdio.h"
+#include "SEGGER_RTT.h"
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -136,12 +137,23 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
+/*
+ * UART printf retarget (disabled): stdout -> USART1 via HAL_UART_Transmit.
+ *
 int fputc(int ch, FILE *f)
 {
     uint8_t c = (uint8_t)ch;
     if (HAL_UART_Transmit(&huart1, &c, 1, 10) != HAL_OK) {
         return EOF;
     }
+    return ch;
+}
+ */
+
+int fputc(int ch, FILE *f)
+{
+    (void)f;
+    SEGGER_RTT_PutChar(0, (char)ch);
     return ch;
 }
 /* USER CODE END 1 */

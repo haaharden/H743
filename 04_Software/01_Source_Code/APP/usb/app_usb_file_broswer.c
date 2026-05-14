@@ -7,16 +7,16 @@
 #include "event_conf.h"
 #include "ff.h"
 #include "log.h"
-#include "usb_file_browser.h"
+#include "app_usb_file_browser.h"
 
 #define USB_FILE_BROWSER_OK      0
 #define USB_FILE_BROWSER_ERROR  -1
 
 #define USB_FILE_ATTR_VOLUME  0x08U //过滤掉卷标，ff.c中定义的 AM_VOL 是 0x08
 
-static int UsbFileBrowser_OpenPath(UsbFileBrowser_t *self, const char *path);
+static int UsbFileBrowser_OpenPath(usb_file_browser_ctx *self, const char *path);
 
-void UsbFileBrowser_Init(UsbFileBrowser_t *self,
+void UsbFileBrowser_Init(usb_file_browser_ctx *self,
                          osEventFlagsId_t mount_event,
                          osEventFlagsId_t ui_msg_event)
 {
@@ -25,7 +25,7 @@ void UsbFileBrowser_Init(UsbFileBrowser_t *self,
     memset(&self->view_model, 0, sizeof(self->view_model));
 }
 
-void UsbFileBrowser_Deinit(UsbFileBrowser_t *self)
+void UsbFileBrowser_Deinit(usb_file_browser_ctx *self)
 {
     if (self == NULL)
     {
@@ -38,7 +38,7 @@ void UsbFileBrowser_Deinit(UsbFileBrowser_t *self)
 // 这里放检测 USB 存储设备的连接状态，列出文件等。
 void UsbFileBrowser_Task(void *argument)
 {
-    UsbFileBrowser_t *self = (UsbFileBrowser_t *)argument;
+    usb_file_browser_ctx *self = (usb_file_browser_ctx *)argument;
     for(;;) {
         uint32_t flags = osEventFlagsWait(self->mount_event, 
                                 MOUNT_EVT_READY | MOUNT_EVT_DISCONNECT, 
@@ -56,7 +56,7 @@ void UsbFileBrowser_Task(void *argument)
     }
 }
 
-const UsbViewModel_t* UsbFileBrowser_GetViewModel(const UsbFileBrowser_t *self)
+const UsbViewModel_t* UsbFileBrowser_GetViewModel(const usb_file_browser_ctx *self)
 {
     if (self == NULL) {
     return NULL;
@@ -65,7 +65,7 @@ const UsbViewModel_t* UsbFileBrowser_GetViewModel(const UsbFileBrowser_t *self)
 }
 
 // 扫描指定路径下的文件和文件夹，结果保存在 view_model 中，供界面显示使用。
-static int UsbFileBrowser_OpenPath(UsbFileBrowser_t *self, const char *path)
+static int UsbFileBrowser_OpenPath(usb_file_browser_ctx *self, const char *path)
 {
     DIR dir;
     FILINFO fno;

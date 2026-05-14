@@ -36,6 +36,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "flash_if.h"
+#include "SEGGER_RTT.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -117,8 +118,9 @@ int main(void)
   MX_QUADSPI_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+	SEGGER_RTT_Init();
 	printf("================================\r\n");
-	printf("JUMP TO BOOT APP1 SUCCESSFULLY!\r\n");
+	printf("OTA TEST SUCCESSFULLY!\r\n");
 	printf("================================\r\n");
 
   /* USER CODE END 2 */

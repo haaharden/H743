@@ -1,5 +1,5 @@
-#ifndef OTA_UPDATE_H
-#define OTA_UPDATE_H
+#ifndef APP_OTA_UPDATE_H
+#define APP_OTA_UPDATE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,4 +11,4 @@ void OTA_Update_Task(void *argument);
 }
 #endif
 
-#endif /* OTA_UPDATE_H */
+#endif /* APP_OTA_UPDATE_H */

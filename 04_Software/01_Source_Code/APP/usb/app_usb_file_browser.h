@@ -26,14 +26,14 @@ typedef struct {
   osEventFlagsId_t mount_event;
   osEventFlagsId_t ui_msg_event;
   UsbViewModel_t   view_model;    // 当前显示的文件列表数据
-} UsbFileBrowser_t;
+} usb_file_browser_ctx;
 
-void UsbFileBrowser_Init(UsbFileBrowser_t *self,
+void UsbFileBrowser_Init(usb_file_browser_ctx *self,
                          osEventFlagsId_t mount_event,
                          osEventFlagsId_t ui_msg_event);
-void UsbFileBrowser_Deinit(UsbFileBrowser_t *self);
+void UsbFileBrowser_Deinit(usb_file_browser_ctx *self);
 void UsbFileBrowser_Task(void *argument);
-const UsbViewModel_t *UsbFileBrowser_GetViewModel(const UsbFileBrowser_t *self);
+const UsbViewModel_t *UsbFileBrowser_GetViewModel(const usb_file_browser_ctx *self);
 
 
 #endif

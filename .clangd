@@ -1,0 +1,16 @@
+# 与 compile_commands 无关的补充标志：嵌入式三元组 + newlib/GCC 系统头（本机 Arm GNU 15.2.1）。
+# 若升级工具链后仍缺 math.h/string.h，请运行:
+#   arm-none-eabi-gcc -print-sysroot
+#   arm-none-eabi-gcc -print-file-name=include
+# 并同步修改下面两处 -isystem / sysroot。
+CompileFlags:
+  Add:
+    - --target=arm-none-eabi
+    - -Wno-unused-command-line-argument
+    - -U_WIN32
+    - '--sysroot=C:/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi/arm-none-eabi'
+    - '-isystem=C:/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi/arm-none-eabi/include'
+    - '-isystem=C:/Program Files/Arm/GNU Toolchain mingw-w64-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/15.2.1/include'
+
+Diagnostics:
+  UnusedIncludes: None

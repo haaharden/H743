@@ -26,9 +26,10 @@
 #include "initial.h"
 #include "display.h"
 #include "initial.h"
-#include "usb_storage.h"
-#include "usb_file_browser.h"
-#include "ota_update.h"
+#include "app_usb_storage.h"
+#include "app_usb_file_browser.h"
+#include "app_ota_update.h"
+#include "ota_confirm.h"
 #include "app_usbhost_port.h"
 
 osSemaphoreId_t  Lvgl_Ready_Sem;
@@ -72,6 +73,13 @@ const osThreadAttr_t OTA_Task_attributes = {
   .priority = (osPriority_t) osPriorityHigh,
 };
 
+osThreadId_t OTA_Confirm_TaskHandle;
+const osThreadAttr_t OTA_Confirm_Task_attributes = {
+  .name = "OTA_Confirm",
+  .stack_size = 1024 * 2,
+  .priority = (osPriority_t) osPriorityBelowNormal,
+};
+
 void MX_FREERTOS_Init(void) {
 
   /* 创建信号量和事件标志 */
@@ -82,12 +90,12 @@ void MX_FREERTOS_Init(void) {
   ota_download_Event  = osEventFlagsNew(NULL);
 
   /* 依赖注入 */
-  static UsbStorage_t s_usb_storage;
+  static usb_storage_ctx s_usb_storage;
   UsbStorage_Init(&s_usb_storage, 
                   usb_Event, 
                   usb_mount_Event);
 
-  static UsbFileBrowser_t s_file_brow_ctx;
+  static usb_file_browser_ctx s_file_brow_ctx;
   UsbFileBrowser_Init(&s_file_brow_ctx, 
                       usb_mount_Event, 
                       ui_MSG_Event);
@@ -117,6 +125,9 @@ void MX_FREERTOS_Init(void) {
   OTA_TaskHandle      = osThreadNew(OTA_Update_Task, 
                                     NULL, 
                                     &OTA_Task_attributes);
+  OTA_Confirm_TaskHandle = osThreadNew(OTA_Trial_Confirm_Task,
+                                       NULL,
+                                       &OTA_Confirm_Task_attributes);
 }
 
 
