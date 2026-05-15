@@ -5,7 +5,7 @@
 **********************************************************************
 
 File          : 
-Created       : 07. May 2026 08:35
+Created       : 15. May 2026 10:20
 Ozone Version : V3.40h
 */
 
@@ -22,8 +22,8 @@ void OnProjectLoad (void) {
   //
   // Dialog-generated settings
   //
-  Project.AddPathSubstitute ("C:/C/debug_ozone", "$(ProjectDir)");
-  Project.AddPathSubstitute ("c:/c/debug_ozone", "$(ProjectDir)");
+  Project.AddPathSubstitute ("C:/C/H743/07_Tools/debug_ozone", "$(ProjectDir)");
+  Project.AddPathSubstitute ("c:/c/h743/07_tools/debug_ozone", "$(ProjectDir)");
   Project.SetDevice ("STM32H743XI");
   Project.SetHostIF ("USB", "");
   Project.SetTargetIF ("SWD");
@@ -342,56 +342,21 @@ void _SetupTarget(void) {
   unsigned int PC;
   unsigned int VectorTableAddr;
 
-  /*
-   * For normal STM32H743 application located at internal Flash start.
-   * If Elf.GetBaseAddr() returns 0x08000000 correctly, this is OK.
-   *
-   * If you are debugging an APP after bootloader, for example APP starts at
-   * 0x08020000, replace this line with:
-   *
-   *   VectorTableAddr = 0x08020000;
-   */
   VectorTableAddr = Elf.GetBaseAddr();
-
-  /*
-   * Optional: force vector table base.
-   * For normal CubeMX / Keil app, usually this is 0x08000000.
-   */
-  // VectorTableAddr = 0x08000000;
-
-  /*
-   * Set VTOR to application vector table.
-   * SCB->VTOR address = 0xE000ED08
-   */
-  Target.WriteU32(0xE000ED08, VectorTableAddr);
-
-  /*
-   * Initial MSP = first word of vector table.
-   */
+  //
+  // Set up initial stack pointer
+  //
   SP = Target.ReadU32(VectorTableAddr);
-
-  if (SP == 0xFFFFFFFF) {
-    Util.Error("Project script error: invalid initial SP", 1);
+  if (SP != 0xFFFFFFFF) {
+    Target.SetReg("SP", SP);
   }
-
-  Target.SetReg("SP", SP);
-
-  /*
-   * Reset_Handler = second word of vector table.
-   * Do NOT use Elf.GetEntryPointPC() here.
-   */
+  //
+  // Set up entry point PC
+  //
   PC = Target.ReadU32(VectorTableAddr + 4);
-
-  if (PC == 0xFFFFFFFF) {
-    Util.Error("Project script error: invalid reset vector PC", 1);
+  if (PC != 0xFFFFFFFF) {
+    Target.SetReg("PC", PC);
+  } else {
+    Util.Error("Project script error: failed to set up entry point PC", 1);
   }
-
-  Target.SetReg("PC", PC);
-
-  /*
-   * Optional but recommended for Cortex-M:
-   * Set Thumb state bit in xPSR.
-   * If Ozone reports this register name unsupported, comment this line.
-   */
-  Target.SetReg("XPSR", 0x01000000);
 }
