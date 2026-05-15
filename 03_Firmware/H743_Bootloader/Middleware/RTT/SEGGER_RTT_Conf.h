@@ -430,7 +430,6 @@ void OS_SIM_LeaveCriticalSection(void);
 *       If SEGGER_RTT_SECTION is defined but SEGGER_RTT_BUFFER_SECTION
 *       is not, use the same section for SEGGER_RTT_BUFFER_SECTION.
 */
-
 #ifndef SEGGER_RTT_SECTION
  #define SEGGER_RTT_SECTION ".rtt_data"
 #endif

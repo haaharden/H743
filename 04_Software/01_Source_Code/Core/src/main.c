@@ -90,6 +90,9 @@ int main(void)
 
   /* MCU Configuration--------------------------------------------------------*/
 
+	SEGGER_RTT_Init();
+	SEGGER_RTT_WriteString(0, "APP entered\r\n");
+	
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
@@ -118,7 +121,7 @@ int main(void)
   MX_QUADSPI_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-	SEGGER_RTT_Init();
+	
 	printf("================================\r\n");
 	printf("OTA TEST SUCCESSFULLY!\r\n");
 	printf("================================\r\n");
